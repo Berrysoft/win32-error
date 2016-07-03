@@ -1,12 +1,13 @@
 [package]
-name = "rust_win32error"
-version = "0.8.0"
+name = "win32-error"
+version = "0.9.0"
 authors = ["jojonv <novakj@outlook.com>"]
 license = "Apache-2.0"
-keywords = ["winapi", "windows", "win32error", "ffi"]
+keywords = ["winapi", "windows", "win32error", "error", "ffi"]
 repository = "https://github.com/jojonv/rust-win32error.git"
 homepage = "https://github.com/jojonv/rust-win32error.git"
 description = "Error like wrapper for GetLastError for Windows"
 
 [dependencies]
-kernel32-sys = "*"
+winapi = "0.2"
+kernel32-sys = "0.2.2"

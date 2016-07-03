@@ -1,5 +1,5 @@
-
 //! Error-like wrapper around win32 GetLastError and FormatMessage
+extern crate winapi;
 extern crate kernel32;
 
 use std::ptr;
@@ -7,14 +7,11 @@ use std::slice;
 use std::fmt;
 use std::error::Error;
 
-use self::kernel32::{ GetLastError, FormatMessageW};
+use kernel32::{GetLastError, FormatMessageW};
 
-
-// const FORMAT_MESSAGE_FROM_STRING: u32 = 0x00000400;
-// const FORMAT_MESSAGE_ALLOCATE_BUFFER: u32 = 0x00000100;
-const FORMAT_MESSAGE_IGNORE_INSERTS: u32 = 0x00000200;
-const FORMAT_MESSAGE_FROM_SYSTEM: u32 = 0x00001000;
-const FORMAT_MESSAGE_ARGUMENT_ARRAY: u32 = 0x00002000;
+use winapi::FORMAT_MESSAGE_IGNORE_INSERTS;
+use winapi::FORMAT_MESSAGE_FROM_SYSTEM;
+use winapi::FORMAT_MESSAGE_ARGUMENT_ARRAY;
 
 const UNKNOWN_ERROR_TEXT: &'static str = "Unknown error";
 
@@ -31,13 +28,11 @@ const UNKNOWN_ERROR_TEXT: &'static str = "Unknown error";
 pub type Win32Result<T> = Result<T, Win32Error>;
 
 #[derive(Debug, Clone)]
-pub struct Win32Error
-{
+pub struct Win32Error {
     // Error code returned by GetLastError or passed as an arg
-    //
     error_code: u32,
+
     // Message returned by FormatMessage
-    //
     description: Option<String>,
 }
 
