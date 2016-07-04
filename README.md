@@ -1,27 +1,26 @@
-# rust_win32error
+# win32-error
 
 Error like wrapper for GetLastError for Rust.
 
-## Example
+## Usage 
 
 
-cargo.toml
+File: Cargo.toml
 
-**0.8.0**
 ```toml
 ...
 
 [dependencies]
 kernel32-sys = "*"
-rust-win32error = "0.8.0"
+win32-error = "0.9.0"
 ```
 
-main.rs
+File: main.rs
 ```rust
 extern crate kernel32;
-extern crate rust_win32error;
+extern crate win32_error;
 
-use rust_win32error::*;
+use win32_error::*;
 use kernel32::OpenProcess;
 // needs to be brought so `description` function can be used
 use std::error::Error;
