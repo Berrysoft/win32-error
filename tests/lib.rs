@@ -1,8 +1,8 @@
-extern crate rust_win32error;
+extern crate win32_error;
 extern crate kernel32;
 
 use std::error::Error;
-use rust_win32error::*;
+use win32_error::*;
 use self::kernel32::{ OpenProcess };
 
 
