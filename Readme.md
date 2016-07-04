@@ -2,21 +2,22 @@
 
 Error like wrapper for GetLastError for Rust.
 
-## Example ##
+## Example
 
 
 cargo.toml
 
 **0.8.0**
-``` Rust
+```toml
 ...
+
 [dependencies]
 kernel32-sys = "*"
 rust-win32error = "0.8.0"
 ```
 
 main.rs
-``` Rust
+```rust
 extern crate kernel32;
 extern crate rust_win32error;
 
@@ -50,4 +51,22 @@ fn func() {
 fn get_result_ok() -> Win32Result<u32> {
     Err(Win32Error::new())
 }
+```
+
+## License
+```
+    Copyright (c) 2015 Jozef Novák
+    Copyright (c) 2016 Jean Pierre Dudey
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 ```
