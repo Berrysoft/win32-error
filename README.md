@@ -69,3 +69,6 @@ fn get_result_ok() -> Win32Result<u32> {
     See the License for the specific language governing permissions and
     limitations under the License.
 ```
+
+### Dependency Graph
+![cargo-dependency-graph](cargo-graph.png)
