@@ -3,7 +3,6 @@ extern crate winapi;
 extern crate kernel32;
 
 use std::ptr;
-use std::slice;
 use std::fmt;
 use std::error::Error;
 
@@ -21,8 +20,9 @@ const UNKNOWN_ERROR_TEXT: &'static str = "Unknown error";
 /// # Examples
 ///
 /// ```
+/// use win32_error::*;
 /// fn get_error() -> Win32Result<u32> {
-///     Error(Win32Error::new())   
+///     Err(Win32Error::new())   
 /// }
 /// ```
 pub type Win32Result<T> = Result<T, Win32Error>;
@@ -36,27 +36,14 @@ pub struct Win32Error {
     description: Option<String>,
 }
 
-fn init_vector<'a, T: Default>(vec: &'a mut Vec<T>)
-{
-    let mut x = 0;
-    while x < vec.capacity()
-    {
-        vec.push(T::default());
-        x += 1;
-    }
-}
-
 fn init_from_error_code(errno: u32) -> Win32Error
 {
     unsafe
     {
+        let mut buff = [0u16; 256];
         let buff_size = 256;
-        let mut buff: Vec<u16> = Vec::with_capacity(buff_size);
-
-        init_vector(&mut buff);
 
         // Should be zero or num of chars copied
-        //
         let chars_copied = FormatMessageW(
             FORMAT_MESSAGE_IGNORE_INSERTS
             | FORMAT_MESSAGE_FROM_SYSTEM
@@ -69,7 +56,6 @@ fn init_from_error_code(errno: u32) -> Win32Error
             , ptr::null_mut());
 
         // Very likely wrong err number was passed, and no message exists
-        //
         if chars_copied == 0
         {
             return Win32Error { error_code: errno, description: None };
@@ -77,8 +63,7 @@ fn init_from_error_code(errno: u32) -> Win32Error
 
 
         // Remove newline - "\r\n" and punctuation or space from the message
-        //
-        let mut curr_char: usize = chars_copied as usize;
+        let mut curr_char = chars_copied as usize;
         while curr_char > 0
         {
             let ch = buff[curr_char];
@@ -86,8 +71,8 @@ fn init_from_error_code(errno: u32) -> Win32Error
             if ch >= ' ' as u16 { break; }
             curr_char -= 1;
         }
-        let sl = slice::from_raw_parts(buff.as_ptr(), curr_char);
-        let err_msg = String::from_utf16(sl);
+
+        let err_msg = String::from_utf16(&buff);
 
         let description = match err_msg { Ok(s) => Some(s), _ => None };
         Win32Error { error_code: errno, description: description }
@@ -144,7 +129,7 @@ impl fmt::Display for Win32Error
     /// # Examples
     ///
     /// ```
-    /// use rust_win32error::*;
+    /// use win32_error::*;
     /// let err = Win32Error::new();
     /// println!("{}", err);
     /// ```
@@ -166,7 +151,7 @@ impl Win32Error
     /// # Examples
     ///
     /// ```
-    /// use rust_win32error::*;
+    /// use win32_error::*;
     /// let err = Win32Error::new();
     /// ```
     pub fn new() -> Self { Self::from(unsafe { GetLastError() }) }
@@ -175,7 +160,7 @@ impl Win32Error
     /// # Examples
     ///
     /// ```
-    /// use rust_win32error::*;
+    /// use win32_error::*;
     /// let err = Win32Error::new();
     /// assert_eq!(err.get_error_code(), 0);
     /// ```
