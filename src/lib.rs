@@ -1,19 +1,15 @@
 //! Error-like wrapper around win32 GetLastError and FormatMessage
-extern crate winapi;
-extern crate kernel32;
+use std::{error::Error, fmt, ptr};
 
-use std::ptr;
-use std::fmt;
-use std::error::Error;
-
-use kernel32::{GetLastError, FormatMessageW};
-
-use winapi::FORMAT_MESSAGE_IGNORE_INSERTS;
-use winapi::FORMAT_MESSAGE_FROM_SYSTEM;
-use winapi::FORMAT_MESSAGE_ARGUMENT_ARRAY;
+use winapi::um::{
+    errhandlingapi::GetLastError,
+    winbase::{
+        FormatMessageW, FORMAT_MESSAGE_ARGUMENT_ARRAY, FORMAT_MESSAGE_FROM_SYSTEM,
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+    },
+};
 
 const UNKNOWN_ERROR_TEXT: &'static str = "Unknown error";
-
 
 /// Generic wrapper around Result type
 ///
@@ -42,15 +38,17 @@ fn init_from_error_code(errno: u32) -> Win32Error {
         let buff_size = 256;
 
         // Should be zero or num of chars copied
-        let chars_copied = FormatMessageW(FORMAT_MESSAGE_IGNORE_INSERTS |
-                                          FORMAT_MESSAGE_FROM_SYSTEM |
-                                          FORMAT_MESSAGE_ARGUMENT_ARRAY,
-                                          ptr::null(),
-                                          errno,
-                                          0,
-                                          buff.as_mut_ptr(),
-                                          (buff_size + 1) as u32,
-                                          ptr::null_mut());
+        let chars_copied = FormatMessageW(
+            FORMAT_MESSAGE_IGNORE_INSERTS
+                | FORMAT_MESSAGE_FROM_SYSTEM
+                | FORMAT_MESSAGE_ARGUMENT_ARRAY,
+            ptr::null(),
+            errno,
+            0,
+            buff.as_mut_ptr(),
+            (buff_size + 1) as u32,
+            ptr::null_mut(),
+        );
 
         // Very likely wrong err number was passed, and no message exists
         if chars_copied == 0 {
@@ -59,7 +57,6 @@ fn init_from_error_code(errno: u32) -> Win32Error {
                 description: None,
             };
         }
-
 
         // Remove newline - "\r\n" and punctuation or space from the message
         let mut curr_char = chars_copied as usize;
@@ -84,7 +81,6 @@ fn init_from_error_code(errno: u32) -> Win32Error {
         }
     }
 }
-
 
 macro_rules! impl_from_trait
 {
@@ -140,10 +136,10 @@ impl fmt::Display for Win32Error {
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.description.as_ref() {
-                Some(s) => format!("{}: {}", self.error_code, s),
-                None => format!("{}: {}", self.error_code, UNKNOWN_ERROR_TEXT),
-            }
-            .fmt(f)
+            Some(s) => format!("{}: {}", self.error_code, s),
+            None => format!("{}: {}", self.error_code, UNKNOWN_ERROR_TEXT),
+        }
+        .fmt(f)
     }
 }
 
@@ -176,7 +172,6 @@ impl Win32Error {
     }
 }
 
-
 /// Retrieves localized description of the error, with one exception that's
 /// description of the error couldn't be retrieved, in which case
 /// *Unknown error* (in english) is returned.
@@ -187,20 +182,18 @@ impl Error for Win32Error {
             None => UNKNOWN_ERROR_TEXT,
         }
     }
-    fn cause(&self) -> Option<&Error> {
+    fn cause(&self) -> Option<&dyn Error> {
         None
     }
 }
 
-
 #[cfg(test)]
 mod test {
-    use std::error::Error;
     use super::*;
+    use std::error::Error;
 
     // ugly duplication
     const UNKNOWN_ERROR_TEXT: &'static str = "Unknown error";
-
 
     #[test]
     fn win32error_new_test() {
