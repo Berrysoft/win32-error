@@ -1,13 +1,13 @@
 //! Error-like wrapper around win32 GetLastError and FormatMessage
-use std::error::Error;
-use std::fmt;
-use std::ptr;
+use std::{error::Error, fmt, ptr};
 
-use kernel32::{FormatMessageW, GetLastError};
-
-use winapi::FORMAT_MESSAGE_ARGUMENT_ARRAY;
-use winapi::FORMAT_MESSAGE_FROM_SYSTEM;
-use winapi::FORMAT_MESSAGE_IGNORE_INSERTS;
+use winapi::um::{
+    errhandlingapi::GetLastError,
+    winbase::{
+        FormatMessageW, FORMAT_MESSAGE_ARGUMENT_ARRAY, FORMAT_MESSAGE_FROM_SYSTEM,
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+    },
+};
 
 const UNKNOWN_ERROR_TEXT: &'static str = "Unknown error";
 
