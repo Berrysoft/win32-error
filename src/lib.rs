@@ -1,7 +1,4 @@
 //! Error-like wrapper around win32 GetLastError and FormatMessage
-extern crate winapi;
-extern crate kernel32;
-
 use std::ptr;
 use std::fmt;
 use std::error::Error;
@@ -187,7 +184,7 @@ impl Error for Win32Error {
             None => UNKNOWN_ERROR_TEXT,
         }
     }
-    fn cause(&self) -> Option<&Error> {
+    fn cause(&self) -> Option<&dyn Error> {
         None
     }
 }
